@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model comment {
+  id           Bytes     @id @db.Binary(16)
+  date_comment DateTime? @default(now()) @db.DateTime(0)
+  content      String    @db.Text
+  comment_rate Int
+  job_id       Bytes?    @db.Binary(16)
+  user_id      Bytes?    @db.Binary(16)
+  job          job?      @relation(fields: [job_id], references: [id], onDelete: Cascade, map: "fk_comment_job")
+  user         user?     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_comment_user")
+
+  @@index([job_id], map: "fk_comment_job")
+  @@index([user_id], map: "fk_comment_user")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model job {
+  id               Bytes             @id @db.Binary(16)
+  job_name         String            @db.VarChar(255)
+  rate_amount      Int
+  price            Int
+  image            String            @db.VarChar(255)
+  desc             String?           @default("No Description") @db.VarChar(255)
+  short_desc       String?           @default("No Description") @db.VarChar(255)
+  job_rate         Int
+  user_id          Bytes?            @db.Binary(16)
+  jtd_id           Bytes?            @db.Binary(16)
+  comment          comment[]
+  job_type_details job_type_details? @relation(fields: [jtd_id], references: [id], onDelete: Cascade, map: "fk_job_jtd")
+  user             user?             @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_job_user")
+  job_rental       job_rental[]
+
+  @@index([jtd_id], map: "fk_job_jtd")
+  @@index([user_id], map: "fk_job_user")
+}
+
+model job_rental {
+  id        Bytes     @id @db.Binary(16)
+  date_rent DateTime? @default(now()) @db.DateTime(0)
+  is_finish Boolean
+  job_id    Bytes?    @db.Binary(16)
+  user_id   Bytes?    @db.Binary(16)
+  job       job?      @relation(fields: [job_id], references: [id], onDelete: Cascade, map: "fk_jr_job")
+  user      user?     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_jr_user")
+
+  @@index([job_id], map: "fk_jr_job")
+  @@index([user_id], map: "fk_jr_user")
+}
+
+model job_type {
+  id               Bytes              @id @db.Binary(16)
+  name_type        String             @db.VarChar(255)
+  job_type_details job_type_details[]
+}
+
+model job_type_details {
+  id          Bytes     @id @db.Binary(16)
+  name_detail String    @db.VarChar(255)
+  image       String    @db.VarChar(255)
+  jt_id       Bytes?    @db.Binary(16)
+  job         job[]
+  job_type    job_type? @relation(fields: [jt_id], references: [id], onDelete: Cascade, map: "fk_jtd_jt")
+
+  @@index([jt_id], map: "fk_jtd_jt")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model user {
+  id            Bytes        @id @db.Binary(16)
+  name          String       @db.VarChar(255)
+  email         String       @unique(map: "email") @db.VarChar(255)
+  password      String       @db.VarChar(255)
+  phone         String       @unique(map: "phone") @db.VarChar(10)
+  birthday      DateTime     @db.DateTime(0)
+  gender        String       @db.VarChar(10)
+  role          String       @db.VarChar(255)
+  skill         String       @db.VarChar(255)
+  certification String       @db.VarChar(255)
+  comment       comment[]
+  job           job[]
+  job_rental    job_rental[]
+}
