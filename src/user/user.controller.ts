@@ -27,6 +27,11 @@ export class UserController {
     return new ResponseObject<user>(HttpStatus.OK, 'Success', await this.userService.findOne({ id: uuidToBuffer(id) }));
   }
 
+  @Get('/search/:name')
+  async findAllWithCondition(@Param('name') name: string): Promise<ResponseObject<user[]>> {
+    return new ResponseObject<user[]>(HttpStatus.OK, 'Success', await this.userService.findAllWithCondition({ name: {contains: name} }));
+  }
+
   @Post('pagination')
   async findAllWithPagination(@Body() pagination: Pagination): Promise<ResponseObject<user[]>> {
     return new ResponseObject<user[]>(HttpStatus.OK, 'Success', await this.userService.findAllWithPagination(pagination));

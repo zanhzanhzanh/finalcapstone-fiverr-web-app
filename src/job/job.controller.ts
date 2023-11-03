@@ -33,6 +33,41 @@ export class JobController {
     return new ResponseObject<job>(HttpStatus.OK, 'Success', await this.jobService.findOne({ id: uuidToBuffer(id) }));
   }
 
+  @Get('/search/detail/:id')
+  async findOneDetail(@Param('id', ParseUUIDPipe) id: UUID): Promise<ResponseObject<job[]>> {
+    return new ResponseObject<job[]>(HttpStatus.OK, 'Success', await this.jobService.findAllWithAnyCondition({
+      include: {
+        user: true,
+        job_type_details: {
+          include: {
+            job_type: true
+          }
+        }
+      },
+      where: { id: uuidToBuffer(id) }
+    }));
+  }
+
+  @Get('/search/:job_name')
+  async findAllWithJobName(@Param('job_name') job_name: string): Promise<ResponseObject<job[]>> {
+    return new ResponseObject<job[]>(HttpStatus.OK, 'Success', await this.jobService.findAllWithCondition({ job_name: {contains: job_name} }));
+  }
+
+  @Get('/search/:jtd_id')
+  async findAllWithJobTypeDetailId(@Param('jtd_id', ParseUUIDPipe) jtd_id: UUID): Promise<ResponseObject<job[]>> {
+    return new ResponseObject<job[]>(HttpStatus.OK, 'Success', await this.jobService.findAllWithCondition({ jtd_id: uuidToBuffer(jtd_id) }, ['user', 'job_type_details']));
+  }
+
+  @Get('/search/job_rental_finished/:job_id')
+  async findAllWithAnyCondition(@Param('job_id', ParseUUIDPipe) job_id: UUID): Promise<ResponseObject<job[]>> {
+    return new ResponseObject<job[]>(HttpStatus.OK, 'Success', await this.jobService.findAllWithAnyCondition({
+      include: {
+        job_rental: true
+      },
+      where: { id: uuidToBuffer(job_id) }
+    }));
+  }
+
   @Post('pagination')
   async findAllWithPagination(@Body() pagination: Pagination): Promise<ResponseObject<job[]>> {
     return new ResponseObject<job[]>(HttpStatus.OK, 'Success', await this.jobService.findAllWithPagination(pagination));

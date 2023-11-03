@@ -56,4 +56,19 @@ export class BaseService<T extends BaseModel> {
       },
     })
   }
+
+  async findAllWithCondition(where: Prisma.Args<T, 'findMany'>, models?: string[]): Promise<T[]> {
+    return await this.model.findMany({
+      // Show SubObjects
+      include: models !== undefined ? models.reduce((arr, item) => {
+        arr[item] = true;
+        return arr;
+      }, {}) : undefined,
+      where
+    });
+  }
+
+  async findAllWithAnyCondition(condition: Prisma.Args<T, 'findMany'>): Promise<T[]> {
+    return await this.model.findMany(condition);
+  }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseUUIDPipe, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseUUIDPipe, UseFilters, ParseBoolPipe } from '@nestjs/common';
 import { JobRentalService } from './job-rental.service';
 import { CreateJobRentalDto } from './dto/create-job-rental.dto';
 import { UpdateJobRentalDto } from './dto/update-job-rental.dto';
@@ -24,6 +24,11 @@ export class JobRentalController {
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: UUID): Promise<ResponseObject<job_rental>> {
     return new ResponseObject<job_rental>(HttpStatus.OK, 'Success', await this.jobRentalService.findOne({ id: uuidToBuffer(id) }));
+  }
+
+  @Get('/search/:is_finish')
+  async findAllWithCondition(@Param('is_finish', ParseBoolPipe) is_finish: boolean): Promise<ResponseObject<job_rental[]>> {
+    return new ResponseObject<job_rental[]>(HttpStatus.OK, 'Success', await this.jobRentalService.findAllWithCondition({ is_finish }, ['user', 'job']));
   }
 
   @Post('pagination')

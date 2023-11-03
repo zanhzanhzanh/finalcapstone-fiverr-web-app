@@ -27,6 +27,11 @@ export class CommentController {
     return new ResponseObject<comment>(HttpStatus.OK, 'Success', await this.commentService.findOne({ id: uuidToBuffer(id) }));
   }
 
+  @Get('/search/:job_id')
+  async findAllWithCondition(@Param('job_id', ParseUUIDPipe) job_id: UUID): Promise<ResponseObject<comment[]>> {
+    return new ResponseObject<comment[]>(HttpStatus.OK, 'Success', await this.commentService.findAllWithCondition({ job_id: uuidToBuffer(job_id) }, ['user', 'job']));
+  }
+
   @Post('pagination')
   async findAllWithPagination(@Body() pagination: Pagination): Promise<ResponseObject<comment[]>> {
     return new ResponseObject<comment[]>(HttpStatus.OK, 'Success', await this.commentService.findAllWithPagination(pagination));
