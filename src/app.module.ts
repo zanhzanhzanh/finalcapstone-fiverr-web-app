@@ -12,6 +12,7 @@ import { S3Module } from 'nestjs-s3';
 import { MulterModule, MulterModuleOptions } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { extname } from 'path';
+import { AuthModule } from './auth/auth.module';
 
 @Global()
 @Module({
@@ -61,10 +62,12 @@ import { extname } from 'path';
     JobModule,
     CommentModule,
     JobRentalModule,
-    JobTypeDetailsModule
+    JobTypeDetailsModule,
+    AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService
+  providers: [
+    AppService,
   // This config apply ErrorFilter for All Router
   //   , {
   //   provide: APP_FILTER,
