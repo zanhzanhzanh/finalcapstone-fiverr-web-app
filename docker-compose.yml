@@ -1,0 +1,41 @@
+# Version docker compose
+version: '3'
+services:
+  mysql_db:
+    image: mysql
+    container_name: fiverr-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=01696478018
+    ports:
+      - 3307:3306
+    volumes:
+      - mysql_db:/var/lib/mysql
+    networks:
+      - fiverr-networks
+  fiverr_be:
+    depends_on:
+      - mysql_db
+    build: .
+    container_name: fiverr-be
+    env_file: .env
+    environment:
+      - DATABASE_URL=$DATABASE_URL
+
+      # S3 Config
+      - BUCKET_NAME=$BUCKET_NAME
+      - BUCKET_REGION=$BUCKET_REGION
+      - ACCESS_KEY=$ACCESS_KEY
+      - SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY
+
+      # JWT Secret Key
+      - JWT_SECRET_KEY=$JWT_SECRET_KEY
+    ports:
+      - 3000:3000
+    networks:
+      - fiverr-networks
+
+volumes:
+  mysql_db:
+    driver: local
+networks:
+  fiverr-networks:
